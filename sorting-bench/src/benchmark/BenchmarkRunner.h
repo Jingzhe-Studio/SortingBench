@@ -7,15 +7,12 @@
 #include "BenchmarkResult.h"
 
 class Sorter;
-class TraceInt;
 
 class BenchmarkRunner {
 private:
     std::vector<std::shared_ptr<Sorter>> sorters;
 
-    std::vector<TraceInt> toTraceData(const std::vector<int>& rawData) const;
-
-    bool isSorted(const std::vector<TraceInt>& data) const;
+    bool isSorted(const std::vector<int>& data) const;
 
     BenchmarkResult runOnce(
         const std::vector<int>& rawData,

@@ -1,33 +1,31 @@
 #include "QuickSort.h"
 
-#include <algorithm>  // std::swap
-
 std::string QuickSort::name() const {
     return "QuickSort";
 }
 
-void QuickSort::sort(std::vector<TraceInt>& data) {
+void QuickSort::sort(TraceArray& data) {
     if (data.empty()) {
         return;
     }
     quickSort(data, 0, static_cast<int>(data.size()) - 1);
 }
 
-int QuickSort::partition(std::vector<TraceInt>& data, int low, int high) {
-    TraceInt pivot = data[high];
+int QuickSort::partition(TraceArray& data, int low, int high) {
+    int pivot = data.get(static_cast<size_t>(high));
     int i = low - 1;
 
     for (int j = low; j < high; ++j) {
-        if (data[j] < pivot) {
+        if (data.lessValue(static_cast<size_t>(j), pivot)) {
             ++i;
-            std::swap(data[i], data[j]);
+            data.swap(static_cast<size_t>(i), static_cast<size_t>(j));
         }
     }
-    std::swap(data[i + 1], data[high]);
+    data.swap(static_cast<size_t>(i + 1), static_cast<size_t>(high));
     return i + 1;
 }
 
-void QuickSort::quickSort(std::vector<TraceInt>& data, int low, int high) {
+void QuickSort::quickSort(TraceArray& data, int low, int high) {
     if (low < high) {
         int pi = partition(data, low, high);
         quickSort(data, low, pi - 1);

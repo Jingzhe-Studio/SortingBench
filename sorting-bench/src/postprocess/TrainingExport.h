@@ -18,8 +18,9 @@ public:
     ///
     /// CSV columns:
     ///   dataset_id, input_id, data_type, size, data,
-    ///   best_algorithm, best_time_ms, best_key_ops, best_correct,
-    ///   all_algorithms, all_times_ms, all_key_ops
+    ///   best_algorithm, best_time_ms, best_key_ops, best_moves, best_swaps,
+    ///   best_correct, all_algorithms, all_times_ms, all_key_ops,
+    ///   all_moves, all_swaps
     static bool writeTrainingCsv(
         const std::vector<int>& rawData,
         const BenchmarkConfig& config,

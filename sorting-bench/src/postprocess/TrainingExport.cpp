@@ -14,8 +14,10 @@ bool writeHeaderIfNeeded(std::ofstream& out, bool fileExists)
 {
     if (!fileExists) {
         out << "dataset_id,input_id,data_type,size,data,"
-            << "best_algorithm,best_time_ms,best_key_ops,best_correct,"
-            << "all_algorithms,all_times_ms,all_key_ops\n";
+            << "best_algorithm,best_time_ms,best_key_ops,best_moves,"
+            << "best_swaps,best_correct,"
+            << "all_algorithms,all_times_ms,all_key_ops,all_moves,"
+            << "all_swaps\n";
     }
 
     return static_cast<bool>(out);
@@ -50,9 +52,11 @@ bool writeTrainingRow(
         out << winner->algorithmName << ","
             << std::setprecision(6) << winner->elapsedMs << ","
             << winner->keyOpCount << ","
+            << winner->moveCount << ","
+            << winner->swapCount << ","
             << (winner->sortedCorrectly ? "true" : "false") << ",";
     } else {
-        out << "NONE," << "0.0," << "0," << "false,";
+        out << "NONE," << "0.0," << "0," << "0," << "0," << "false,";
     }
 
     // ---- all algorithms (semicolon-delimited) ----
@@ -69,6 +73,16 @@ bool writeTrainingRow(
     for (size_t i = 0; i < rankedResults.size(); ++i) {
         if (i > 0) out << ";";
         out << rankedResults[i].keyOpCount;
+    }
+    out << ",";
+    for (size_t i = 0; i < rankedResults.size(); ++i) {
+        if (i > 0) out << ";";
+        out << rankedResults[i].moveCount;
+    }
+    out << ",";
+    for (size_t i = 0; i < rankedResults.size(); ++i) {
+        if (i > 0) out << ";";
+        out << rankedResults[i].swapCount;
     }
     out << "\n";
 

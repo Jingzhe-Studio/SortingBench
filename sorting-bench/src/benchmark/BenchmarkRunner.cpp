@@ -3,8 +3,7 @@
 #include <chrono>
 
 #include "../contract/Sorter.h"
-#include "../trace/TraceInt.h"
-#include "../trace/TraceSession.h"
+#include "../trace/TraceArray.h"
 #include "SortStats.h"
 
 /* -------------------------------------------------------------------------- */
@@ -39,24 +38,11 @@ std::vector<BenchmarkResult> BenchmarkRunner::run(
 /*  Private helpers                                                           */
 /* -------------------------------------------------------------------------- */
 
-std::vector<TraceInt> BenchmarkRunner::toTraceData(
-    const std::vector<int>& rawData
-) const {
-    std::vector<TraceInt> result;
-    result.reserve(rawData.size());
-
-    for (int value : rawData) {
-        result.emplace_back(value);
-    }
-
-    return result;
-}
-
 bool BenchmarkRunner::isSorted(
-    const std::vector<TraceInt>& data
+    const std::vector<int>& data
 ) const {
     for (size_t i = 1; i < data.size(); ++i) {
-        if (data[i - 1].getValue() > data[i].getValue()) {
+        if (data[i - 1] > data[i]) {
             return false;
         }
     }
@@ -71,19 +57,17 @@ BenchmarkResult BenchmarkRunner::runOnce(
     // ---- accumulate metrics across repeats ----
     double totalElapsedMs = 0.0;
     long long totalCompareCount = 0;
-    long long totalWriteCount = 0;
+    long long totalMoveCount = 0;
+    long long totalSwapCount = 0;
     bool allSortedCorrectly = true;
 
     for (int r = 0; r < config.repeatTimes; ++r) {
-        std::vector<TraceInt> dataCopy = toTraceData(rawData);
         SortStats stats;
+        TraceArray dataCopy(rawData, stats);
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        {
-            TraceSession session(stats);
-            sorter->sort(dataCopy);
-        }
+        sorter->sort(dataCopy);
 
         auto end = std::chrono::high_resolution_clock::now();
 
@@ -92,9 +76,10 @@ BenchmarkResult BenchmarkRunner::runOnce(
 
         totalElapsedMs += elapsedMs;
         totalCompareCount += stats.compareCount;
-        totalWriteCount += stats.writeCount;
+        totalMoveCount += stats.moveCount;
+        totalSwapCount += stats.swapCount;
 
-        if (!isSorted(dataCopy)) {
+        if (!isSorted(dataCopy.values())) {
             allSortedCorrectly = false;
         }
     }
@@ -110,8 +95,9 @@ BenchmarkResult BenchmarkRunner::runOnce(
 
     result.elapsedMs = totalElapsedMs / n;
     result.compareCount = totalCompareCount / n;
-    result.writeCount = totalWriteCount / n;
-    result.keyOpCount = result.compareCount + result.writeCount;
+    result.moveCount = totalMoveCount / n;
+    result.swapCount = totalSwapCount / n;
+    result.keyOpCount = result.compareCount + result.moveCount;
 
     result.sortedCorrectly = allSortedCorrectly;
 

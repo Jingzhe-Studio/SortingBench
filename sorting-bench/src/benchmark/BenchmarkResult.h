@@ -13,7 +13,8 @@ struct BenchmarkResult {
     double elapsedMs = 0.0;
 
     long long compareCount = 0;
-    long long writeCount = 0;
+    long long moveCount = 0;
+    long long swapCount = 0;
     long long keyOpCount = 0;
 
     bool sortedCorrectly = false;
