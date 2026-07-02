@@ -23,7 +23,8 @@ bool ReportWriter::writeCsv(
     // ---- header ----
     out << "dataset_id,input_id,data_type,data_size,"
         << "algorithm,"
-        << "elapsed_ms,compare_count,move_count,swap_count,key_op_count,"
+        << "elapsed_ms,median_elapsed_ms,stddev_elapsed_ms,"
+        << "compare_count,move_count,swap_count,key_op_count,"
         << "sorted_correctly,"
         << "time_rank,operation_rank,overall_score,overall_rank\n";
 
@@ -35,6 +36,8 @@ bool ReportWriter::writeCsv(
             << r.dataSize << ","
             << r.algorithmName << ","
             << std::fixed << std::setprecision(6) << r.elapsedMs << ","
+            << r.medianElapsedMs << ","
+            << r.stddevElapsedMs << ","
             << r.compareCount << ","
             << r.moveCount << ","
             << r.swapCount << ","
@@ -74,6 +77,8 @@ void ReportWriter::writeConsole(
     constexpr int W_INPUT  = 12;
     constexpr int W_TYPE   = 14;
     constexpr int W_TIME   = 10;
+    constexpr int W_MEDIAN = 10;
+    constexpr int W_STDDEV = 10;
     constexpr int W_CMP    = 12;
     constexpr int W_MOVE   = 10;
     constexpr int W_SWAP   = 10;
@@ -91,6 +96,8 @@ void ReportWriter::writeConsole(
                   << std::setw(W_INPUT) << "input"
                   << std::setw(W_TYPE) << "type"
                   << std::setw(W_TIME) << "time_ms"
+                  << std::setw(W_MEDIAN) << "median_ms"
+                  << std::setw(W_STDDEV) << "stddev_ms"
                   << std::setw(W_CMP)  << "compares"
                   << std::setw(W_MOVE) << "moves"
                   << std::setw(W_SWAP) << "swaps"
@@ -105,8 +112,8 @@ void ReportWriter::writeConsole(
 
     auto printSep = [&] {
         std::cout << std::string(W_ALGO+W_SIZE+W_INPUT+W_TYPE+W_TIME+W_CMP
-                                +W_MOVE+W_SWAP+W_KEY+W_OK+W_TRANK+W_ORANK
-                                +W_SCORE+W_OVR, '-')
+                                +W_MEDIAN+W_STDDEV+W_MOVE+W_SWAP+W_KEY+W_OK
+                                +W_TRANK+W_ORANK+W_SCORE+W_OVR, '-')
                   << "\n";
     };
 
@@ -121,6 +128,8 @@ void ReportWriter::writeConsole(
                   << std::setw(W_TYPE) << r.dataType
                   << std::fixed << std::setprecision(3)
                   << std::setw(W_TIME) << r.elapsedMs
+                  << std::setw(W_MEDIAN) << r.medianElapsedMs
+                  << std::setw(W_STDDEV) << r.stddevElapsedMs
                   << std::setw(W_CMP)  << r.compareCount
                   << std::setw(W_MOVE) << r.moveCount
                   << std::setw(W_SWAP) << r.swapCount

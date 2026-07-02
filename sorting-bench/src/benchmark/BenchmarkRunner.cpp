@@ -1,12 +1,48 @@
 #include "BenchmarkRunner.h"
 
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <utility>
+#include <vector>
 
 #include "../contract/Sorter.h"
 #include "../postprocess/ResultRanker.h"
 #include "../trace/TraceArray.h"
 #include "SortStats.h"
+
+namespace {
+
+double median(std::vector<double> samples) {
+    if (samples.empty()) {
+        return 0.0;
+    }
+
+    std::sort(samples.begin(), samples.end());
+
+    const size_t mid = samples.size() / 2;
+    if (samples.size() % 2 == 1) {
+        return samples[mid];
+    }
+
+    return (samples[mid - 1] + samples[mid]) / 2.0;
+}
+
+double sampleStddev(const std::vector<double>& samples, double mean) {
+    if (samples.size() < 2) {
+        return 0.0;
+    }
+
+    double sumSquaredDiff = 0.0;
+    for (double sample : samples) {
+        const double diff = sample - mean;
+        sumSquaredDiff += diff * diff;
+    }
+
+    return std::sqrt(sumSquaredDiff / static_cast<double>(samples.size() - 1));
+}
+
+}  // namespace
 
 /* -------------------------------------------------------------------------- */
 /*  Public API                                                                */
@@ -98,8 +134,11 @@ BenchmarkResult BenchmarkRunner::runOnce(
     long long totalMoveCount = 0;
     long long totalSwapCount = 0;
     bool allSortedCorrectly = true;
+    const int n = config.repeatTimes > 0 ? config.repeatTimes : 1;
+    std::vector<double> elapsedSamples;
+    elapsedSamples.reserve(static_cast<size_t>(n));
 
-    for (int r = 0; r < config.repeatTimes; ++r) {
+    for (int r = 0; r < n; ++r) {
         SortStats stats;
         TraceArray dataCopy(rawData, stats);
 
@@ -113,6 +152,7 @@ BenchmarkResult BenchmarkRunner::runOnce(
             std::chrono::duration<double, std::milli>(end - start).count();
 
         totalElapsedMs += elapsedMs;
+        elapsedSamples.push_back(elapsedMs);
         totalCompareCount += stats.compareCount;
         totalMoveCount += stats.moveCount;
         totalSwapCount += stats.swapCount;
@@ -122,8 +162,6 @@ BenchmarkResult BenchmarkRunner::runOnce(
         }
     }
 
-    int n = config.repeatTimes;
-
     BenchmarkResult result;
     result.datasetId = config.datasetId;
     result.inputId = config.inputId;
@@ -132,6 +170,8 @@ BenchmarkResult BenchmarkRunner::runOnce(
     result.algorithmName = sorter->name();
 
     result.elapsedMs = totalElapsedMs / n;
+    result.medianElapsedMs = median(elapsedSamples);
+    result.stddevElapsedMs = sampleStddev(elapsedSamples, result.elapsedMs);
     result.compareCount = totalCompareCount / n;
     result.moveCount = totalMoveCount / n;
     result.swapCount = totalSwapCount / n;

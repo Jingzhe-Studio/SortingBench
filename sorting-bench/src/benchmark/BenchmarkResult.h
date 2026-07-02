@@ -11,6 +11,8 @@ struct BenchmarkResult {
     std::string algorithmName;
 
     double elapsedMs = 0.0;
+    double medianElapsedMs = 0.0;
+    double stddevElapsedMs = 0.0;
 
     long long compareCount = 0;
     long long moveCount = 0;
