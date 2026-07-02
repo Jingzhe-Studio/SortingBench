@@ -83,7 +83,6 @@ int main() {
 
     auto trainingSuite = DataGenerator::generateSuite(trainingSpec);
     auto trainingResults = runner.runSuite(trainingSuite, trainingConfig);
-    ReportWriter::writeConsole(trainingResults);
     TrainingExport::writeTrainingSuiteCsv(
         trainingResults, "training_data.csv");
 

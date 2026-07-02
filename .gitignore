@@ -7,6 +7,19 @@
 *.lib
 *.so
 *.dll
+*.pdb
+*.ilk
+*.idb
+*.ipch
+*.tlog
+*.lastbuildstate
+
+# Visual Studio build output
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
 
 # generated output
 *.csv
@@ -17,6 +30,7 @@ output/
 # IDE
 .vs/
 .vscode/
+*.user
 *.swp
 *.swo
 *~

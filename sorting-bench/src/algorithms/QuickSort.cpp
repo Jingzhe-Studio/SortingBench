@@ -26,9 +26,15 @@ int QuickSort::partition(TraceArray& data, int low, int high) {
 }
 
 void QuickSort::quickSort(TraceArray& data, int low, int high) {
-    if (low < high) {
+    while (low < high) {
         int pi = partition(data, low, high);
-        quickSort(data, low, pi - 1);
-        quickSort(data, pi + 1, high);
+
+        if (pi - low < high - pi) {
+            quickSort(data, low, pi - 1);
+            low = pi + 1;
+        } else {
+            quickSort(data, pi + 1, high);
+            high = pi - 1;
+        }
     }
 }
