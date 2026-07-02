@@ -6,6 +6,7 @@
 #include <string>
 
 #include "../benchmark/BenchmarkConfig.h"
+#include "../benchmark/BenchmarkDatasetResult.h"
 #include "../benchmark/BenchmarkResult.h"
 
 namespace {
@@ -153,6 +154,52 @@ bool TrainingExport::writeTrainingDatasetCsv(
 
         if (!writeTrainingRow(
                 out, inputs[i], inputConfig, rankedResultsByInput[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool TrainingExport::writeTrainingDatasetCsv(
+    const BenchmarkDatasetResult& result,
+    const std::string& filePath)
+{
+    if (result.dataset.inputs.size() != result.rankedResultsByInput.size()) {
+        return false;
+    }
+
+    bool fileExists = static_cast<bool>(std::ifstream(filePath));
+
+    std::ofstream out(filePath, std::ios::app);
+    if (!out) return false;
+
+    writeHeaderIfNeeded(out, fileExists);
+
+    for (size_t i = 0; i < result.dataset.inputs.size(); ++i) {
+        BenchmarkConfig inputConfig;
+        inputConfig.datasetId = result.dataset.spec.id;
+        inputConfig.inputId = result.dataset.inputs[i].id;
+        inputConfig.dataType = result.dataset.dataTypeName();
+
+        if (!writeTrainingRow(
+                out,
+                result.dataset.inputs[i].values,
+                inputConfig,
+                result.rankedResultsByInput[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool TrainingExport::writeTrainingSuiteCsv(
+    const BenchmarkSuiteResult& result,
+    const std::string& filePath)
+{
+    for (const auto& datasetResult : result.datasetResults) {
+        if (!writeTrainingDatasetCsv(datasetResult, filePath)) {
             return false;
         }
     }

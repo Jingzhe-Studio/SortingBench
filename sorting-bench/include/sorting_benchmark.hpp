@@ -1,0 +1,14 @@
+#pragma once
+
+#include "../src/algorithms/QuickSort.h"
+#include "../src/benchmark/BenchmarkConfig.h"
+#include "../src/benchmark/BenchmarkDatasetResult.h"
+#include "../src/benchmark/BenchmarkResult.h"
+#include "../src/benchmark/BenchmarkRunner.h"
+#include "../src/data/DataGenerator.h"
+#include "../src/data/DataReader.h"
+#include "../src/data/Dataset.h"
+#include "../src/data/DataWriter.h"
+#include "../src/postprocess/ReportWriter.h"
+#include "../src/postprocess/ResultRanker.h"
+#include "../src/postprocess/TrainingExport.h"

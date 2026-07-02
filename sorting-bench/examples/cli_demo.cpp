@@ -1,11 +1,4 @@
-#include "../src/data/DataGenerator.h"
-#include "../src/data/DataReader.h"
-#include "../src/data/DataWriter.h"
-#include "../src/benchmark/BenchmarkRunner.h"
-#include "../src/postprocess/ResultRanker.h"
-#include "../src/postprocess/ReportWriter.h"
-#include "../src/postprocess/TrainingExport.h"
-#include "../src/algorithms/QuickSort.h"
+#include "../include/sorting_benchmark.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -70,50 +63,33 @@ int main() {
     // ---- training-data CSV ----
     std::cout << "\n=== Training Data Export ===\n";
 
-    const char* trainTypes[] = {
-        "random", "sorted", "reversed", "nearly_sorted",
-        "duplicates", "constant"
+    DatasetGridSpec trainingSpec;
+    trainingSpec.dataTypes = {
+        DataType::Random,
+        DataType::Sorted,
+        DataType::Reversed,
+        DataType::NearlySorted,
+        DataType::Duplicates,
+        DataType::Constant
     };
-    constexpr size_t sizes[] = { 100, 500, 1000, 5000, 10000 };
-    constexpr size_t inputsPerDataset = 5;
+    trainingSpec.inputSizes = { 100, 500, 1000, 5000, 10000 };
+    trainingSpec.inputCountPerDataset = 5;
+    trainingSpec.minValue = 0;
+    trainingSpec.maxValue = 100000;
+    trainingSpec.idPrefix = "dataset";
 
-    size_t datasetCount = 0;
-    size_t inputRowCount = 0;
+    BenchmarkConfig trainingConfig;
+    trainingConfig.repeatTimes = 1;
 
-    for (auto sz : sizes) {
-        for (auto tt : trainTypes) {
-            BenchmarkConfig config;
-            config.datasetId   = "dataset_" + std::string(tt) + "_"
-                                + std::to_string(sz);
-            config.dataType    = tt;
-            config.repeatTimes = 1;
-
-            auto inputs = DataGenerator::generateDataset(
-                tt, inputsPerDataset, sz, 0, 100000);
-
-            std::vector<std::vector<BenchmarkResult>> rankedResultsByInput;
-            rankedResultsByInput.reserve(inputs.size());
-
-            for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex) {
-                BenchmarkConfig inputConfig = config;
-                inputConfig.inputId = "input_" + std::to_string(inputIndex);
-
-                auto results = runner.run(inputs[inputIndex], inputConfig);
-                ResultRanker::rank(results);
-                rankedResultsByInput.push_back(results);
-            }
-
-            TrainingExport::writeTrainingDatasetCsv(
-                inputs, config, rankedResultsByInput, "training_data.csv");
-
-            ++datasetCount;
-            inputRowCount += inputs.size();
-        }
-    }
+    auto trainingSuite = DataGenerator::generateSuite(trainingSpec);
+    auto trainingResults = runner.runSuite(trainingSuite, trainingConfig);
+    ReportWriter::writeConsole(trainingResults);
+    TrainingExport::writeTrainingSuiteCsv(
+        trainingResults, "training_data.csv");
 
     std::cout << "  training_data.csv written ("
-              << datasetCount << " datasets, "
-              << inputRowCount << " input rows)\n";
+              << trainingResults.datasetCount() << " datasets, "
+              << trainingResults.inputRowCount() << " input rows)\n";
 
     std::cout << "\nDone.\n";
     return 0;

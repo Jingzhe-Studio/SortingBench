@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "Dataset.h"
+
 class DataGenerator {
 public:
     static std::vector<int> randomData(
@@ -30,7 +32,17 @@ public:
         const std::string& dataType, size_t size,
         int minVal = 0, int maxVal = 10000);
 
+    static std::vector<int> generate(
+        DataType dataType, size_t size,
+        int minVal = 0, int maxVal = 10000);
+
     static std::vector<std::vector<int>> generateDataset(
         const std::string& dataType, size_t inputCount, size_t inputSize,
         int minVal = 0, int maxVal = 10000);
+
+    static Dataset generateDataset(const DatasetSpec& spec);
+
+    static DatasetSuite generateSuite(const DatasetGridSpec& spec);
+
+    static DatasetSuite generateSuite(const DatasetMixSpec& spec);
 };

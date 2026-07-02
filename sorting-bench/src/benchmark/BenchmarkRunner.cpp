@@ -1,8 +1,10 @@
 #include "BenchmarkRunner.h"
 
 #include <chrono>
+#include <utility>
 
 #include "../contract/Sorter.h"
+#include "../postprocess/ResultRanker.h"
 #include "../trace/TraceArray.h"
 #include "SortStats.h"
 
@@ -32,6 +34,42 @@ std::vector<BenchmarkResult> BenchmarkRunner::run(
     }
 
     return results;
+}
+
+BenchmarkDatasetResult BenchmarkRunner::runDataset(
+    const Dataset& dataset,
+    const BenchmarkConfig& config
+) const {
+    BenchmarkDatasetResult datasetResult;
+    datasetResult.dataset = dataset;
+    datasetResult.rankedResultsByInput.reserve(dataset.inputs.size());
+
+    for (const auto& input : dataset.inputs) {
+        BenchmarkConfig inputConfig = config;
+        inputConfig.datasetId = dataset.spec.id;
+        inputConfig.inputId = input.id;
+        inputConfig.dataType = dataset.dataTypeName();
+
+        auto results = run(input.values, inputConfig);
+        ResultRanker::rank(results);
+        datasetResult.rankedResultsByInput.push_back(std::move(results));
+    }
+
+    return datasetResult;
+}
+
+BenchmarkSuiteResult BenchmarkRunner::runSuite(
+    const DatasetSuite& suite,
+    const BenchmarkConfig& config
+) const {
+    BenchmarkSuiteResult suiteResult;
+    suiteResult.datasetResults.reserve(suite.datasets.size());
+
+    for (const auto& dataset : suite.datasets) {
+        suiteResult.datasetResults.push_back(runDataset(dataset, config));
+    }
+
+    return suiteResult;
 }
 
 /* -------------------------------------------------------------------------- */

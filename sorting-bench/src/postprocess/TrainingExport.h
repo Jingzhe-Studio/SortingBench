@@ -4,7 +4,9 @@
 #include <vector>
 
 struct BenchmarkConfig;
+struct BenchmarkDatasetResult;
 struct BenchmarkResult;
+struct BenchmarkSuiteResult;
 
 class TrainingExport {
 public:
@@ -34,5 +36,13 @@ public:
         const std::vector<std::vector<int>>& inputs,
         const BenchmarkConfig& datasetConfig,
         const std::vector<std::vector<BenchmarkResult>>& rankedResultsByInput,
+        const std::string& filePath);
+
+    static bool writeTrainingDatasetCsv(
+        const BenchmarkDatasetResult& result,
+        const std::string& filePath);
+
+    static bool writeTrainingSuiteCsv(
+        const BenchmarkSuiteResult& result,
         const std::string& filePath);
 };

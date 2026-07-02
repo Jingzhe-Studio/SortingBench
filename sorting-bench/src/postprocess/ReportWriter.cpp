@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
+#include "../benchmark/BenchmarkDatasetResult.h"
 #include "../benchmark/BenchmarkResult.h"
 
 /* ========================================================================= */
@@ -46,6 +47,13 @@ bool ReportWriter::writeCsv(
     }
 
     return true;
+}
+
+bool ReportWriter::writeCsv(
+    const BenchmarkSuiteResult& result,
+    const std::string& filePath)
+{
+    return writeCsv(result.flattenResults(), filePath);
 }
 
 /* ========================================================================= */
@@ -137,5 +145,15 @@ void ReportWriter::writeConsole(
                         ? "* Best: " + best->algorithmName
                         : "* All algorithms failed correctness check")
                   << "\n";
+    }
+}
+
+void ReportWriter::writeConsole(const BenchmarkSuiteResult& result)
+{
+    for (const auto& datasetResult : result.datasetResults) {
+        for (const auto& inputResults : datasetResult.rankedResultsByInput) {
+            writeConsole(inputResults);
+            std::cout << "\n";
+        }
     }
 }

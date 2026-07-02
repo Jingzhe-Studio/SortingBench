@@ -4,6 +4,9 @@
 #include <array>
 #include <functional>
 #include <random>
+#include <string>
+#include <utility>
+#include <vector>
 
 /* -------------------------------------------------------------------------- */
 /*  Random engine (file-static, anonymous namespace)                          */
@@ -20,6 +23,18 @@ std::mt19937& engine() {
         return std::mt19937(seq);
     }();
     return eng;
+}
+
+std::string prefixedDatasetId(
+    const std::string& prefix,
+    DataType type,
+    size_t inputSize
+) {
+    std::string id = defaultDatasetId(type, inputSize);
+    if (!prefix.empty()) {
+        id = prefix + "_" + id;
+    }
+    return id;
 }
 
 }  // anonymous namespace
@@ -204,6 +219,13 @@ std::vector<int> DataGenerator::generate(
     return randomData(size, minVal, maxVal);
 }
 
+std::vector<int> DataGenerator::generate(
+    DataType dataType, size_t size,
+    int minVal, int maxVal
+) {
+    return generate(dataTypeName(dataType), size, minVal, maxVal);
+}
+
 /* -------------------------------------------------------------------------- */
 /*  generateDataset                                                           */
 /* -------------------------------------------------------------------------- */
@@ -220,4 +242,113 @@ std::vector<std::vector<int>> DataGenerator::generateDataset(
     }
 
     return dataset;
+}
+
+Dataset DataGenerator::generateDataset(const DatasetSpec& spec)
+{
+    Dataset dataset;
+    dataset.spec = spec;
+    dataset.spec.id = spec.effectiveId();
+    dataset.inputs.reserve(spec.inputCount);
+
+    for (size_t i = 0; i < spec.inputCount; ++i) {
+        DatasetInput input;
+        input.id = "input_" + std::to_string(i);
+        input.values = generate(
+            spec.dataType, spec.inputSize, spec.minValue, spec.maxValue);
+        dataset.inputs.push_back(std::move(input));
+    }
+
+    return dataset;
+}
+
+DatasetSuite DataGenerator::generateSuite(const DatasetGridSpec& spec)
+{
+    DatasetSuite suite;
+    suite.datasets.reserve(spec.dataTypes.size() * spec.inputSizes.size());
+
+    for (auto inputSize : spec.inputSizes) {
+        for (auto dataType : spec.dataTypes) {
+            DatasetSpec datasetSpec;
+            datasetSpec.id = prefixedDatasetId(
+                spec.idPrefix, dataType, inputSize);
+            datasetSpec.dataType = dataType;
+            datasetSpec.inputSize = inputSize;
+            datasetSpec.inputCount = spec.inputCountPerDataset;
+            datasetSpec.minValue = spec.minValue;
+            datasetSpec.maxValue = spec.maxValue;
+
+            suite.datasets.push_back(generateDataset(datasetSpec));
+        }
+    }
+
+    return suite;
+}
+
+DatasetSuite DataGenerator::generateSuite(const DatasetMixSpec& spec)
+{
+    DatasetSuite suite;
+    if (spec.parts.empty() || spec.totalInputCount == 0) {
+        return suite;
+    }
+
+    struct Allocation {
+        DataType dataType = DataType::Random;
+        size_t count = 0;
+        double remainder = 0.0;
+    };
+
+    double ratioTotal = 0.0;
+    for (const auto& part : spec.parts) {
+        if (part.ratio > 0.0) {
+            ratioTotal += part.ratio;
+        }
+    }
+    if (ratioTotal <= 0.0) {
+        return suite;
+    }
+
+    std::vector<Allocation> allocations;
+    allocations.reserve(spec.parts.size());
+
+    size_t assigned = 0;
+    for (const auto& part : spec.parts) {
+        if (part.ratio <= 0.0) {
+            continue;
+        }
+
+        double exact = static_cast<double>(spec.totalInputCount)
+                     * part.ratio / ratioTotal;
+        auto count = static_cast<size_t>(exact);
+        allocations.push_back({part.dataType, count, exact - count});
+        assigned += count;
+    }
+
+    std::sort(allocations.begin(), allocations.end(),
+              [](const Allocation& a, const Allocation& b) {
+                  return a.remainder > b.remainder;
+              });
+
+    for (size_t i = assigned; i < spec.totalInputCount; ++i) {
+        allocations[(i - assigned) % allocations.size()].count++;
+    }
+
+    for (const auto& allocation : allocations) {
+        if (allocation.count == 0) {
+            continue;
+        }
+
+        DatasetSpec datasetSpec;
+        datasetSpec.id = prefixedDatasetId(
+            spec.idPrefix, allocation.dataType, spec.inputSize);
+        datasetSpec.dataType = allocation.dataType;
+        datasetSpec.inputSize = spec.inputSize;
+        datasetSpec.inputCount = allocation.count;
+        datasetSpec.minValue = spec.minValue;
+        datasetSpec.maxValue = spec.maxValue;
+
+        suite.datasets.push_back(generateDataset(datasetSpec));
+    }
+
+    return suite;
 }

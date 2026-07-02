@@ -94,6 +94,44 @@ int main() {
         std::cout << "generateDataset: PASS\n";
     }
 
+    // 10. typed dataset and suite specs
+    {
+        DatasetSpec spec;
+        spec.id = "random_25";
+        spec.dataType = DataType::Random;
+        spec.inputSize = 25;
+        spec.inputCount = 3;
+        spec.minValue = 0;
+        spec.maxValue = 9;
+
+        auto dataset = DataGenerator::generateDataset(spec);
+        assert(dataset.spec.id == "random_25");
+        assert(dataset.inputs.size() == 3);
+        assert(dataset.inputs[0].id == "input_0");
+        assert(dataset.inputs[0].values.size() == 25);
+
+        DatasetGridSpec grid;
+        grid.dataTypes = { DataType::Random, DataType::Sorted };
+        grid.inputSizes = { 10, 20 };
+        grid.inputCountPerDataset = 2;
+        auto suite = DataGenerator::generateSuite(grid);
+        assert(suite.datasetCount() == 4);
+        assert(suite.inputRowCount() == 8);
+
+        DatasetMixSpec mix;
+        mix.inputSize = 10;
+        mix.totalInputCount = 10;
+        mix.parts = {
+            { DataType::Random, 0.7 },
+            { DataType::Reversed, 0.3 }
+        };
+        auto mixedSuite = DataGenerator::generateSuite(mix);
+        assert(mixedSuite.datasetCount() == 2);
+        assert(mixedSuite.inputRowCount() == 10);
+
+        std::cout << "dataset suite specs: PASS\n";
+    }
+
     std::cout << "\nAll smoke tests passed.\n";
     return 0;
 }
