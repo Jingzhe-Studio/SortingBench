@@ -29,4 +29,8 @@ public:
     static std::vector<int> generate(
         const std::string& dataType, size_t size,
         int minVal = 0, int maxVal = 10000);
+
+    static std::vector<std::vector<int>> generateDataset(
+        const std::string& dataType, size_t inputCount, size_t inputSize,
+        int minVal = 0, int maxVal = 10000);
 };

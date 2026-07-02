@@ -103,6 +103,7 @@ BenchmarkResult BenchmarkRunner::runOnce(
 
     BenchmarkResult result;
     result.datasetId = config.datasetId;
+    result.inputId = config.inputId;
     result.dataType = config.dataType;
     result.dataSize = static_cast<int>(rawData.size());
     result.algorithmName = sorter->name();

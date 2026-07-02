@@ -75,26 +75,45 @@ int main() {
         "duplicates", "constant"
     };
     constexpr size_t sizes[] = { 100, 500, 1000, 5000, 10000 };
+    constexpr size_t inputsPerDataset = 5;
+
+    size_t datasetCount = 0;
+    size_t inputRowCount = 0;
 
     for (auto sz : sizes) {
         for (auto tt : trainTypes) {
             BenchmarkConfig config;
-            config.datasetId   = std::string(tt) + "_" + std::to_string(sz);
+            config.datasetId   = "dataset_" + std::string(tt) + "_"
+                                + std::to_string(sz);
             config.dataType    = tt;
             config.repeatTimes = 1;
 
-            auto rawData = DataGenerator::generate(tt, sz, 0, 100000);
-            auto results = runner.run(rawData, config);
-            ResultRanker::rank(results);
+            auto inputs = DataGenerator::generateDataset(
+                tt, inputsPerDataset, sz, 0, 100000);
 
-            TrainingExport::writeTrainingCsv(
-                rawData, config, results, "training_data.csv");
+            std::vector<std::vector<BenchmarkResult>> rankedResultsByInput;
+            rankedResultsByInput.reserve(inputs.size());
+
+            for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex) {
+                BenchmarkConfig inputConfig = config;
+                inputConfig.inputId = "input_" + std::to_string(inputIndex);
+
+                auto results = runner.run(inputs[inputIndex], inputConfig);
+                ResultRanker::rank(results);
+                rankedResultsByInput.push_back(results);
+            }
+
+            TrainingExport::writeTrainingDatasetCsv(
+                inputs, config, rankedResultsByInput, "training_data.csv");
+
+            ++datasetCount;
+            inputRowCount += inputs.size();
         }
     }
 
     std::cout << "  training_data.csv written ("
-              << (sizeof(sizes) / sizeof(sizes[0])) * 6
-              << " rows)\n";
+              << datasetCount << " datasets, "
+              << inputRowCount << " input rows)\n";
 
     std::cout << "\nDone.\n";
     return 0;

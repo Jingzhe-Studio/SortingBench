@@ -203,3 +203,21 @@ std::vector<int> DataGenerator::generate(
     // default fallback
     return randomData(size, minVal, maxVal);
 }
+
+/* -------------------------------------------------------------------------- */
+/*  generateDataset                                                           */
+/* -------------------------------------------------------------------------- */
+
+std::vector<std::vector<int>> DataGenerator::generateDataset(
+    const std::string& dataType, size_t inputCount, size_t inputSize,
+    int minVal, int maxVal
+) {
+    std::vector<std::vector<int>> dataset;
+    dataset.reserve(inputCount);
+
+    for (size_t i = 0; i < inputCount; ++i) {
+        dataset.push_back(generate(dataType, inputSize, minVal, maxVal));
+    }
+
+    return dataset;
+}

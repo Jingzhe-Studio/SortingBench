@@ -3,9 +3,79 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <string>
 
 #include "../benchmark/BenchmarkConfig.h"
 #include "../benchmark/BenchmarkResult.h"
+
+namespace {
+
+bool writeHeaderIfNeeded(std::ofstream& out, bool fileExists)
+{
+    if (!fileExists) {
+        out << "dataset_id,input_id,data_type,size,data,"
+            << "best_algorithm,best_time_ms,best_key_ops,best_correct,"
+            << "all_algorithms,all_times_ms,all_key_ops\n";
+    }
+
+    return static_cast<bool>(out);
+}
+
+bool writeTrainingRow(
+    std::ofstream& out,
+    const std::vector<int>& rawData,
+    const BenchmarkConfig& config,
+    const std::vector<BenchmarkResult>& rankedResults)
+{
+    // Find the winner (overallRank == 1)
+    const BenchmarkResult* winner = nullptr;
+    for (const auto& r : rankedResults) {
+        if (r.overallRank == 1 && r.sortedCorrectly) {
+            winner = &r;
+            break;
+        }
+    }
+
+    // ---- identity columns ----
+    out << config.datasetId << ","
+        << config.inputId << ","
+        << config.dataType << ","
+        << rawData.size() << ",";
+
+    // ---- data blob (features) ----
+    out << TrainingExport::serializeData(rawData) << ",";
+
+    // ---- best algorithm (label) ----
+    if (winner) {
+        out << winner->algorithmName << ","
+            << std::setprecision(6) << winner->elapsedMs << ","
+            << winner->keyOpCount << ","
+            << (winner->sortedCorrectly ? "true" : "false") << ",";
+    } else {
+        out << "NONE," << "0.0," << "0," << "false,";
+    }
+
+    // ---- all algorithms (semicolon-delimited) ----
+    for (size_t i = 0; i < rankedResults.size(); ++i) {
+        if (i > 0) out << ";";
+        out << rankedResults[i].algorithmName;
+    }
+    out << ",";
+    for (size_t i = 0; i < rankedResults.size(); ++i) {
+        if (i > 0) out << ";";
+        out << std::setprecision(6) << rankedResults[i].elapsedMs;
+    }
+    out << ",";
+    for (size_t i = 0; i < rankedResults.size(); ++i) {
+        if (i > 0) out << ";";
+        out << rankedResults[i].keyOpCount;
+    }
+    out << "\n";
+
+    return static_cast<bool>(out);
+}
+
+}  // namespace
 
 /* ========================================================================= */
 /*  serializeData                                                            */
@@ -35,62 +105,43 @@ bool TrainingExport::writeTrainingCsv(
     const std::vector<BenchmarkResult>& rankedResults,
     const std::string& filePath)
 {
-    // Find the winner (overallRank == 1)
-    const BenchmarkResult* winner = nullptr;
-    for (const auto& r : rankedResults) {
-        if (r.overallRank == 1 && r.sortedCorrectly) {
-            winner = &r;
-            break;
-        }
-    }
-
     // Check whether the file already exists to decide on header.
     bool fileExists = static_cast<bool>(std::ifstream(filePath));
 
     std::ofstream out(filePath, std::ios::app);
     if (!out) return false;
 
-    // Write header only for a new file.
-    if (!fileExists) {
-        out << "dataset_id,data_type,size,data,"
-            << "best_algorithm,best_time_ms,best_key_ops,best_correct,"
-            << "all_algorithms,all_times_ms,all_key_ops\n";
+    writeHeaderIfNeeded(out, fileExists);
+
+    return writeTrainingRow(out, rawData, config, rankedResults);
+}
+
+bool TrainingExport::writeTrainingDatasetCsv(
+    const std::vector<std::vector<int>>& inputs,
+    const BenchmarkConfig& datasetConfig,
+    const std::vector<std::vector<BenchmarkResult>>& rankedResultsByInput,
+    const std::string& filePath)
+{
+    if (inputs.size() != rankedResultsByInput.size()) {
+        return false;
     }
 
-    // ---- identity columns ----
-    out << config.datasetId << ","
-        << config.dataType << ","
-        << rawData.size() << ",";
+    bool fileExists = static_cast<bool>(std::ifstream(filePath));
 
-    // ---- data blob (features) ----
-    out << serializeData(rawData) << ",";
+    std::ofstream out(filePath, std::ios::app);
+    if (!out) return false;
 
-    // ---- best algorithm (label) ----
-    if (winner) {
-        out << winner->algorithmName << ","
-            << std::setprecision(6) << winner->elapsedMs << ","
-            << winner->keyOpCount << ","
-            << (winner->sortedCorrectly ? "true" : "false") << ",";
-    } else {
-        out << "NONE," << "0.0," << "0," << "false,";
-    }
+    writeHeaderIfNeeded(out, fileExists);
 
-    // ---- all algorithms (semicolon-delimited) ----
-    for (size_t i = 0; i < rankedResults.size(); ++i) {
-        if (i > 0) out << ";";
-        out << rankedResults[i].algorithmName;
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        BenchmarkConfig inputConfig = datasetConfig;
+        inputConfig.inputId = "input_" + std::to_string(i);
+
+        if (!writeTrainingRow(
+                out, inputs[i], inputConfig, rankedResultsByInput[i])) {
+            return false;
+        }
     }
-    out << ",";
-    for (size_t i = 0; i < rankedResults.size(); ++i) {
-        if (i > 0) out << ";";
-        out << std::setprecision(6) << rankedResults[i].elapsedMs;
-    }
-    out << ",";
-    for (size_t i = 0; i < rankedResults.size(); ++i) {
-        if (i > 0) out << ";";
-        out << rankedResults[i].keyOpCount;
-    }
-    out << "\n";
 
     return true;
 }

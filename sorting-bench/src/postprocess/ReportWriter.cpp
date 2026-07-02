@@ -20,7 +20,7 @@ bool ReportWriter::writeCsv(
     }
 
     // ---- header ----
-    out << "dataset_id,data_type,data_size,"
+    out << "dataset_id,input_id,data_type,data_size,"
         << "algorithm,"
         << "elapsed_ms,compare_count,write_count,key_op_count,"
         << "sorted_correctly,"
@@ -29,6 +29,7 @@ bool ReportWriter::writeCsv(
     // ---- rows ----
     for (const auto& r : results) {
         out << r.datasetId << ","
+            << r.inputId << ","
             << r.dataType << ","
             << r.dataSize << ","
             << r.algorithmName << ","
@@ -61,6 +62,7 @@ void ReportWriter::writeConsole(
     // Column widths
     constexpr int W_ALGO   = 16;
     constexpr int W_SIZE   =  8;
+    constexpr int W_INPUT  = 12;
     constexpr int W_TYPE   = 14;
     constexpr int W_TIME   = 10;
     constexpr int W_CMP    = 12;
@@ -76,6 +78,7 @@ void ReportWriter::writeConsole(
         std::cout << std::left
                   << std::setw(W_ALGO) << "algorithm"
                   << std::setw(W_SIZE) << "size"
+                  << std::setw(W_INPUT) << "input"
                   << std::setw(W_TYPE) << "type"
                   << std::setw(W_TIME) << "time_ms"
                   << std::setw(W_CMP)  << "compares"
@@ -90,8 +93,9 @@ void ReportWriter::writeConsole(
     };
 
     auto printSep = [&] {
-        std::cout << std::string(W_ALGO+W_SIZE+W_TYPE+W_TIME+W_CMP+W_WRITE
-                                +W_KEY+W_OK+W_TRANK+W_ORANK+W_SCORE+W_OVR, '-')
+        std::cout << std::string(W_ALGO+W_SIZE+W_INPUT+W_TYPE+W_TIME+W_CMP
+                                +W_WRITE+W_KEY+W_OK+W_TRANK+W_ORANK+W_SCORE
+                                +W_OVR, '-')
                   << "\n";
     };
 
@@ -102,6 +106,7 @@ void ReportWriter::writeConsole(
         std::cout << std::left
                   << std::setw(W_ALGO) << r.algorithmName
                   << std::setw(W_SIZE) << r.dataSize
+                  << std::setw(W_INPUT) << r.inputId
                   << std::setw(W_TYPE) << r.dataType
                   << std::fixed << std::setprecision(3)
                   << std::setw(W_TIME) << r.elapsedMs

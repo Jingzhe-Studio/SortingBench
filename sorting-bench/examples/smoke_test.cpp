@@ -83,6 +83,17 @@ int main() {
         std::cout << "empty size: PASS\n";
     }
 
+    // 9. dataset: a group of inputs
+    {
+        auto dataset = DataGenerator::generateDataset("random", 4, 25, 0, 9);
+        assert(dataset.size() == 4);
+        for (const auto& input : dataset) {
+            assert(input.size() == 25);
+            for (int x : input) assert(x >= 0 && x <= 9);
+        }
+        std::cout << "generateDataset: PASS\n";
+    }
+
     std::cout << "\nAll smoke tests passed.\n";
     return 0;
 }

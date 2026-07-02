@@ -4,6 +4,7 @@
 
 struct BenchmarkResult {
     std::string datasetId;
+    std::string inputId;
     std::string dataType;
     int dataSize = 0;
 
