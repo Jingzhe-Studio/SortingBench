@@ -36,3 +36,18 @@ output/
 *~
 .DS_Store
 Thumbs.db
+
+# CMakeLists.txt is tracked
+!CMakeLists.txt
+
+# CMake build artifacts (CMakeCache.txt already covered by *.txt)
+CMakeCache.txt
+CMakeFiles/
+_deps/
+cmake-build-*/
+
+# Python / pybind11 artifacts
+*.pyd
+__pycache__/
+*.pyc
+*.pyo
