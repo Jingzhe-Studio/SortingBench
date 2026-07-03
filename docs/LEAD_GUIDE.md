@@ -211,14 +211,16 @@ python -c "import sorting_bench as sb; print('ok')"
 ## 发群里的第一句话
 
 ```text
-@所有人 4 步走：
+@所有人 4 步走，按顺序来：
 
-1. 装 Python 3.13（conda create -n sorting-bench python=3.13 -y）
-2. conda activate sorting-bench && pip install -r requirements.txt
-3. git clone https://github.com/Jingzhe-Studio/SortingBench.git
+1. 装 Python 3.13（https://www.python.org/downloads/ 下载安装包，一路下一步）
+   → 如果你电脑上已经有 conda，也可以：conda create -n sorting-bench python=3.13 -y
+2. git clone https://github.com/Jingzhe-Studio/SortingBench.git
+3. cd SortingBench && pip install -r requirements.txt
 4. python --version 确认是 3.13
 
 跑不通马上说，我来帮看。30 分钟后第一次进度同步。
 
-.pyd 我编译完发群里，其他人先不管 C++ 编译这一步。
+A 注意：仓库里 C++ 框架已经搭好了，不要自己新建项目！直接在上面改算法文件就行。
+.pyd 我编译完发群里，B/C 先不管 C++ 编译这一步。
 ```
