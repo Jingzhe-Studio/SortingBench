@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../src/algorithms/QuickSort.h"
+#include "../src/algorithms/SlowSort.h"
 #include "../src/benchmark/BenchmarkConfig.h"
 #include "../src/benchmark/BenchmarkDatasetResult.h"
 #include "../src/benchmark/BenchmarkResult.h"

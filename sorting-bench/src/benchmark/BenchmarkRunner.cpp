@@ -3,9 +3,12 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <memory>
+#include <thread>
 #include <utility>
 #include <vector>
 
+#include "../contract/SortCancelledException.h"
 #include "../contract/Sorter.h"
 #include "../postprocess/ResultRanker.h"
 #include "../trace/TraceArray.h"
@@ -138,15 +141,39 @@ BenchmarkResult BenchmarkRunner::runOnce(
     std::vector<double> elapsedSamples;
     elapsedSamples.reserve(static_cast<size_t>(n));
 
+    bool anyCancelled = false;
+
     for (int r = 0; r < n; ++r) {
         SortStats stats;
-        TraceArray dataCopy(rawData, stats);
+
+        // Shared cancellation flag — the timer thread captures a copy of
+        // this shared_ptr so the atomic lives on even after we leave scope.
+        auto cancelled = std::make_shared<std::atomic<bool>>(false);
+        TraceArray dataCopy(rawData, stats, cancelled.get());
+
+        if (config.timeoutMs > 0) {
+            std::thread([cancelled, ms = config.timeoutMs] {
+                std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+                cancelled->store(true, std::memory_order_relaxed);
+            }).detach();
+        }
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        sorter->sort(dataCopy);
+        bool thisRepeatCancelled = false;
+        try {
+            sorter->sort(dataCopy);
+        } catch (const SortCancelledException&) {
+            thisRepeatCancelled = true;
+        }
 
         auto end = std::chrono::high_resolution_clock::now();
+
+        if (thisRepeatCancelled) {
+            anyCancelled = true;
+            allSortedCorrectly = false;
+            continue;  // skip accumulation — data is incomplete
+        }
 
         double elapsedMs =
             std::chrono::duration<double, std::milli>(end - start).count();
@@ -178,6 +205,11 @@ BenchmarkResult BenchmarkRunner::runOnce(
     result.keyOpCount = result.compareCount + result.moveCount;
 
     result.sortedCorrectly = allSortedCorrectly;
+
+    result.timedOut = anyCancelled;
+    if (anyCancelled) {
+        result.errorMessage = "timeout after " + std::to_string(config.timeoutMs) + " ms";
+    }
 
     return result;
 }

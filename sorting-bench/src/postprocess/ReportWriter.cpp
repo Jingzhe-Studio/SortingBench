@@ -25,7 +25,7 @@ bool ReportWriter::writeCsv(
         << "algorithm,"
         << "elapsed_ms,median_elapsed_ms,stddev_elapsed_ms,"
         << "compare_count,move_count,swap_count,key_op_count,"
-        << "sorted_correctly,"
+        << "sorted_correctly,timed_out,error_message,"
         << "time_rank,operation_rank,overall_score,overall_rank\n";
 
     // ---- rows ----
@@ -43,6 +43,8 @@ bool ReportWriter::writeCsv(
             << r.swapCount << ","
             << r.keyOpCount << ","
             << (r.sortedCorrectly ? "true" : "false") << ","
+            << (r.timedOut ? "true" : "false") << ","
+            << r.errorMessage << ","
             << r.timeRank << ","
             << r.operationRank << ","
             << std::setprecision(2) << r.overallScore << ","
@@ -83,7 +85,7 @@ void ReportWriter::writeConsole(
     constexpr int W_MOVE   = 10;
     constexpr int W_SWAP   = 10;
     constexpr int W_KEY    = 12;
-    constexpr int W_OK     =  8;
+    constexpr int W_OK     = 10;
     constexpr int W_TRANK  =  8;
     constexpr int W_ORANK  =  8;
     constexpr int W_SCORE  =  8;
@@ -134,7 +136,8 @@ void ReportWriter::writeConsole(
                   << std::setw(W_MOVE) << r.moveCount
                   << std::setw(W_SWAP) << r.swapCount
                   << std::setw(W_KEY)  << r.keyOpCount
-                  << std::setw(W_OK)   << (r.sortedCorrectly ? "YES" : "NO")
+                  << std::setw(W_OK)   << (r.timedOut ? "TIMEOUT"
+                                                : r.sortedCorrectly ? "YES" : "NO")
                   << std::setw(W_TRANK)<< r.timeRank
                   << std::setw(W_ORANK)<< r.operationRank
                   << std::setprecision(2)

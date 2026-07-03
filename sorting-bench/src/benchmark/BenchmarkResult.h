@@ -21,6 +21,9 @@ struct BenchmarkResult {
 
     bool sortedCorrectly = false;
 
+    bool timedOut = false;
+    std::string errorMessage;
+
     int timeRank = 0;
     int operationRank = 0;
     double overallScore = 0.0;

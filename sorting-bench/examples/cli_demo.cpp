@@ -38,6 +38,27 @@ int main() {
         allResults.insert(allResults.end(), results.begin(), results.end());
     }
 
+    // ---- SlowSort timeout test (separate runner) ----
+    std::cout << "=== SlowSort with timeout=100ms (size=50, repeat=1) ===\n\n";
+
+    {
+        BenchmarkRunner timeoutRunner;
+        timeoutRunner.addSorter(std::make_shared<QuickSort>());
+        timeoutRunner.addSorter(std::make_shared<SlowSort>());
+
+        BenchmarkConfig timeoutConfig;
+        timeoutConfig.datasetId   = "random_50";
+        timeoutConfig.dataType    = "random";
+        timeoutConfig.repeatTimes = 1;
+        timeoutConfig.timeoutMs   = 100;
+
+        auto data = DataGenerator::generate("random", 50);
+        auto results = timeoutRunner.run(data, timeoutConfig);
+        ResultRanker::rank(results);
+        ReportWriter::writeConsole(results);
+        std::cout << "\n";
+    }
+
     // ---- round-trip serialisation test ----
     std::cout << "\n=== DataWriter / DataReader round-trip ===\n";
 

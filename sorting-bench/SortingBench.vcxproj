@@ -138,6 +138,7 @@
     <ClCompile Include="src\algorithms\QuickSort.cpp" />
     <ClCompile Include="src\algorithms\SelectionSort.cpp" />
     <ClCompile Include="src\algorithms\ShellSort.cpp" />
+    <ClCompile Include="src\algorithms\SlowSort.cpp" />
     <ClCompile Include="src\benchmark\BenchmarkRunner.cpp" />
     <ClCompile Include="src\data\DataGenerator.cpp" />
     <ClCompile Include="src\data\DataReader.cpp" />
@@ -154,11 +155,13 @@
     <ClInclude Include="src\algorithms\QuickSort.h" />
     <ClInclude Include="src\algorithms\SelectionSort.h" />
     <ClInclude Include="src\algorithms\ShellSort.h" />
+    <ClInclude Include="src\algorithms\SlowSort.h" />
     <ClInclude Include="src\benchmark\BenchmarkConfig.h" />
     <ClInclude Include="src\benchmark\BenchmarkDatasetResult.h" />
     <ClInclude Include="src\benchmark\BenchmarkResult.h" />
     <ClInclude Include="src\benchmark\BenchmarkRunner.h" />
     <ClInclude Include="src\benchmark\SortStats.h" />
+    <ClInclude Include="src\contract\SortCancelledException.h" />
     <ClInclude Include="src\contract\Sorter.h" />
     <ClInclude Include="src\data\DataGenerator.h" />
     <ClInclude Include="src\data\DataReader.h" />

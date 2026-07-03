@@ -68,7 +68,7 @@ void ResultRanker::rank(std::vector<BenchmarkResult>& results) {
     // 3. overallScore — equal-weight combination of the two ranks.
     //    A failed sorter gets a sentinel so it always sorts last.
     for (auto& r : results) {
-        if (r.sortedCorrectly) {
+        if (r.sortedCorrectly && !r.timedOut) {
             r.overallScore = r.timeRank * 0.5 + r.operationRank * 0.5;
         } else {
             r.overallScore = std::numeric_limits<double>::max();
