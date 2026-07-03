@@ -6,6 +6,41 @@
 - **Python 绑定**：`import sorting_bench`，全部 API 可调，文档在 `docs/API.md`
 - **缺失的**：BubbleSort、SelectionSort、InsertionSort、ShellSort、MergeSort 还是空壳，A 负责补齐
 
+## 0. 统一 Python 环境——最先做
+
+团队四人必须用同一个 Python 版本（3.13），否则 `.pyd` 不兼容。
+
+### 方案一（推荐）：conda 创建统一环境
+
+```bash
+# 没有 conda 的话，先装 Miniconda：
+# https://docs.conda.io/en/latest/miniconda.html
+
+conda create -n sorting-bench python=3.13 -y
+conda activate sorting-bench
+```
+
+然后把 conda 环境名 `sorting-bench` 告诉团队所有人，大家都用这个环境。
+
+### 方案二：官方安装包
+
+从 https://www.python.org/downloads/release/python-3130/ 下载 `python-3.13.0-amd64.exe`，安装时勾选 "Add Python to PATH"。
+
+### 验证版本一致
+
+```bash
+python --version
+# 必须输出 Python 3.13.x
+```
+
+确认后安装依赖：
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
 ## 搭建编译环境（D 和 A 都要搞，B、C 不用）
 
 仓库里**没有预编译的 .pyd**。A 负责写 C++ 代码，但 D 也需要能自己编译，否则 A 卡住了没法帮。
@@ -152,10 +187,10 @@ D: demo_pipeline.py 到哪一步了？
 git clone https://github.com/Jingzhe-Studio/SortingBench.git
 cd SortingBench
 
-# 2. 全员装 Python 依赖
-pip install streamlit pandas plotly scikit-learn joblib
+# 2. 统一 Python 3.13 + 装依赖（按上面第 0 步做）
 
-# 3. 编译 .pyd（按上面"搭建编译环境"的步骤走完）
+# 3. 编译 .pyd（按上面"搭建编译环境"走完）
+#    编译完后把 .pyd 复制到项目根目录，方便 import
 
 # 4. 验证
 python -c "import sorting_bench as sb; print('ok')"
@@ -176,9 +211,14 @@ python -c "import sorting_bench as sb; print('ok')"
 ## 发群里的第一句话
 
 ```text
-@所有人 先把仓库克隆下来，装好依赖。A 负责编译 .pyd，其他人等 A 发了 .pyd 后跑通下面这行：
+@所有人 4 步走：
 
-python -c "import sorting_bench as sb; print('ok')"
+1. 装 Python 3.13（conda create -n sorting-bench python=3.13 -y）
+2. conda activate sorting-bench && pip install -r requirements.txt
+3. git clone https://github.com/Jingzhe-Studio/SortingBench.git
+4. python --version 确认是 3.13
 
 跑不通马上说，我来帮看。30 分钟后第一次进度同步。
+
+.pyd 我编译完发群里，其他人先不管 C++ 编译这一步。
 ```

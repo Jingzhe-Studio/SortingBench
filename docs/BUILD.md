@@ -19,7 +19,7 @@ The MSBuild `.vcxproj` is preserved as-is. **For the Python module, you must use
 
 - Visual Studio 2022+ (Community / Professional / Enterprise) with "Desktop development with C++" workload
 - CMake >= 3.18 (`pip install cmake` if not installed)
-- Python >= 3.8 (for building the Python module)
+- **Python 3.13.x** — `.pyd` 与 Python 版本绑定，必须用 3.13
 - Git (required by FetchContent to clone pybind11)
 
 ### Quick Start

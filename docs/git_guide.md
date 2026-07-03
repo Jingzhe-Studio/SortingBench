@@ -74,6 +74,7 @@ chore: add matplotlib to requirements.txt
 ```bash
 git clone https://github.com/Jingzhe-Studio/SortingBench.git
 cd SortingBench
+pip install -r requirements.txt   # 必须先装 Python 3.13
 ```
 
 ### 第二步：创建自己的分支

@@ -37,8 +37,9 @@ output/
 .DS_Store
 Thumbs.db
 
-# CMakeLists.txt is tracked
+# CMakeLists.txt and requirements.txt are tracked
 !CMakeLists.txt
+!requirements.txt
 
 # CMake build artifacts (CMakeCache.txt already covered by *.txt)
 CMakeCache.txt

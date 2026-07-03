@@ -4,6 +4,40 @@
 
 ---
 
+## 0. 环境约束
+
+| 依赖 | 版本 | 安装方式 |
+|------|------|----------|
+| Python | **3.13.x** | conda 或 python.org 下载（见下文） |
+| Streamlit | latest | `pip install` |
+| pandas | latest | `pip install` |
+| plotly | latest | `pip install` |
+| scikit-learn | latest | `pip install` |
+| joblib | latest | `pip install` |
+
+**.pyd 与 Python 版本绑定**：C++ 编译产物 `sorting_bench.cp313-win_amd64.pyd` 只能用于 Python 3.13。A、B、C、D 四人的 Python 版本必须一致，否则 `import sorting_bench` 会报错。
+
+### 安装 Python 3.13（conda）
+
+```bash
+# 如果没有 conda：从 https://docs.conda.io/en/latest/miniconda.html 下载 Miniconda
+conda create -n sorting-bench python=3.13 -y
+conda activate sorting-bench
+pip install -r requirements.txt
+```
+
+### 安装 Python 3.13（官方安装包）
+
+从 https://www.python.org/downloads/release/python-3130/ 下载 `python-3.13.0-amd64.exe`，安装时勾选 "Add Python to PATH"。
+
+然后：
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
 ## 1. 算法类名（A → B、C、D）
 
 A 补齐后，`sorting_bench` 提供以下 7 个排序器（已有 QuickSort 和 SlowSort，新增 5 个）：
@@ -274,9 +308,10 @@ project/
 
 ---
 
-## 11. 依赖（`requirements.txt`）
+## 11. 依赖清单
 
 ```text
+# requirements.txt（项目根目录）
 streamlit
 pandas
 plotly
@@ -284,4 +319,4 @@ scikit-learn
 joblib
 ```
 
-注：`sorting_bench` 是 C++ 编译产物（`.pyd`），不在 pip 依赖中，需单独构建。
+全部 `pip install -r requirements.txt` 一行搞定。
