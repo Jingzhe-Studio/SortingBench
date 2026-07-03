@@ -16,9 +16,12 @@ pip install -r requirements.txt
 git clone https://github.com/Jingzhe-Studio/SortingBench.git
 cd SortingBench
 
-# 4. 获取 .pyd（由 A/D 编译后分发到项目根目录）
+# 4. 编译 C++（A/D）
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target sorting_bench --config Release
+copy build\Release\sorting_bench*.pyd .   # 分发 .pyd 到项目根目录
 
-# 5. 验证
+# 5. 验证（B/C 拿到 .pyd 后）
 python -c "import sorting_bench as sb; print('ok')"
 ```
 

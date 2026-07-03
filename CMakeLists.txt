@@ -5,17 +5,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ============================================================
-# Dependencies — pybind11 via FetchContent (fallback: find_package)
+# Dependencies — pybind11 (shipped in-tree, v2.12.0)
 # ============================================================
-include(FetchContent)
-FetchContent_Declare(
-    pybind11
-    GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    GIT_TAG v2.12.0
-)
+# pybind11 is committed directly in third_party/pybind11.
+# No network needed at configure time — just clone the repo and build.
+add_subdirectory(third_party/pybind11)
 # Prevent pybind11 from installing itself as part of our build
 set(PYBIND11_INSTALL OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(pybind11)
 
 # ============================================================
 # Common source files (all .cpp except cli_demo and empty stubs)

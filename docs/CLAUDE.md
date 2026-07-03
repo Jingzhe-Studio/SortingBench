@@ -8,14 +8,26 @@ Sorting Bench is a C++17 benchmarking framework for sorting algorithms. It measu
 
 ## Build
 
-This is a Visual Studio 2022+ project (toolset v145). Open `sorting-bench/SortingBench.sln` in Visual Studio, or build from the command line:
+Three build targets via CMake (requires Python 3.13):
+
+| Target | Output | Purpose |
+|--------|--------|---------|
+| `cli_demo` | `build/Release/cli_demo.exe` | Console smoke test |
+| `sorting_bench_core` | `build/Release/sorting_bench_core.lib` | Static library (C++ core) |
+| `sorting_bench` | `build/Release/sorting_bench.cp313-win_amd64.pyd` | Python extension module |
+
+pybind11 v2.12.0 is shipped in-tree at `third_party/pybind11/`. No network required.
+
+### Build commands
 
 ```bash
-# From the sorting-bench/ directory
-msbuild SortingBench.sln /p:Configuration=Release /p:Platform=x64
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target cli_demo --config Release        # executable only
+cmake --build build --target sorting_bench --config Release   # Python module only
+cmake --build build --config Release                          # everything
 ```
 
-The executable is a console application — the entry point is `examples/cli_demo.cpp`. There are no tests or other build targets; `cli_demo.cpp` doubles as a smoke-test harness.
+A legacy MSBuild project (`sorting-bench/SortingBench.sln`) also exists but **cannot build the Python module** — use CMake for that.
 
 ## Architecture
 

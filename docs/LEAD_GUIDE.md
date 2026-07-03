@@ -143,7 +143,7 @@ B、C 拿到后在项目根目录下就能 `import sorting_bench`。
 | `'cl' 不是内部或外部命令` | 没在 Developer PowerShell | 搜"Developer PowerShell for VS 2022"打开 |
 | CMake 捡到 Windows Store 的 Python 3.12 | 没指定路径 | 加上三个 `-DPYTHON_*` 参数 |
 | `ModuleNotFoundError: No module named 'sorting_bench'` | .pyd 不在当前目录，或 Python 版本不匹配 | 确认 `.pyd` 后缀中的 `cp313` 和 `python --version` 一致 |
-| FetchContent clone 失败 | 网络问题 | 挂梯子重试 |
+| pybind11 找不到 | `third_party/pybind11/` 缺失（clone 不完整） | 确认 `git clone` 完整，或手动 `git clone --branch v2.12.0 --depth 1 https://github.com/pybind/pybind11.git third_party/pybind11` |
 
 ---
 
