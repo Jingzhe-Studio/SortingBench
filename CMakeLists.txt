@@ -17,7 +17,12 @@ set(PYBIND11_INSTALL OFF CACHE BOOL "" FORCE)
 # Common source files (all .cpp except cli_demo and empty stubs)
 # ============================================================
 set(SORTING_BENCH_SOURCES
+    sorting-bench/src/algorithms/BubbleSort.cpp
+    sorting-bench/src/algorithms/InsertionSort.cpp
+    sorting-bench/src/algorithms/MergeSort.cpp
     sorting-bench/src/algorithms/QuickSort.cpp
+    sorting-bench/src/algorithms/SelectionSort.cpp
+    sorting-bench/src/algorithms/ShellSort.cpp
     sorting-bench/src/algorithms/SlowSort.cpp
     sorting-bench/src/benchmark/BenchmarkRunner.cpp
     sorting-bench/src/data/DataGenerator.cpp
@@ -30,7 +35,12 @@ set(SORTING_BENCH_SOURCES
 
 set(SORTING_BENCH_HEADERS
     sorting-bench/include/sorting_benchmark.hpp
+    sorting-bench/src/algorithms/BubbleSort.h
+    sorting-bench/src/algorithms/InsertionSort.h
+    sorting-bench/src/algorithms/MergeSort.h
     sorting-bench/src/algorithms/QuickSort.h
+    sorting-bench/src/algorithms/SelectionSort.h
+    sorting-bench/src/algorithms/ShellSort.h
     sorting-bench/src/algorithms/SlowSort.h
     sorting-bench/src/benchmark/BenchmarkConfig.h
     sorting-bench/src/benchmark/BenchmarkDatasetResult.h

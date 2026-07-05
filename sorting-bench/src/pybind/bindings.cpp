@@ -4,7 +4,12 @@
 #include <pybind11/stl.h>
 
 // Framework headers -- use the same include paths as the static library
+#include "../algorithms/BubbleSort.h"
+#include "../algorithms/InsertionSort.h"
+#include "../algorithms/MergeSort.h"
 #include "../algorithms/QuickSort.h"
+#include "../algorithms/SelectionSort.h"
+#include "../algorithms/ShellSort.h"
 #include "../algorithms/SlowSort.h"
 #include "../benchmark/BenchmarkConfig.h"
 #include "../benchmark/BenchmarkDatasetResult.h"
@@ -284,6 +289,36 @@ PYBIND11_MODULE(sorting_bench, m) {
     // Built-in algorithm: QuickSort
     // --------------------------------------------------------
     py::class_<QuickSort, Sorter, std::shared_ptr<QuickSort>>(m, "QuickSort")
+        .def(py::init<>());
+
+    // --------------------------------------------------------
+    // Built-in algorithm: BubbleSort
+    // --------------------------------------------------------
+    py::class_<BubbleSort, Sorter, std::shared_ptr<BubbleSort>>(m, "BubbleSort")
+        .def(py::init<>());
+
+    // --------------------------------------------------------
+    // Built-in algorithm: SelectionSort
+    // --------------------------------------------------------
+    py::class_<SelectionSort, Sorter, std::shared_ptr<SelectionSort>>(m, "SelectionSort")
+        .def(py::init<>());
+
+    // --------------------------------------------------------
+    // Built-in algorithm: InsertionSort
+    // --------------------------------------------------------
+    py::class_<InsertionSort, Sorter, std::shared_ptr<InsertionSort>>(m, "InsertionSort")
+        .def(py::init<>());
+
+    // --------------------------------------------------------
+    // Built-in algorithm: ShellSort
+    // --------------------------------------------------------
+    py::class_<ShellSort, Sorter, std::shared_ptr<ShellSort>>(m, "ShellSort")
+        .def(py::init<>());
+
+    // --------------------------------------------------------
+    // Built-in algorithm: MergeSort
+    // --------------------------------------------------------
+    py::class_<MergeSort, Sorter, std::shared_ptr<MergeSort>>(m, "MergeSort")
         .def(py::init<>());
 
     // --------------------------------------------------------
