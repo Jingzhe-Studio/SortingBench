@@ -36,12 +36,13 @@ output/
 *~
 .DS_Store
 Thumbs.db
+Desktop.ini
 
 # CMakeLists.txt and requirements.txt are tracked
 !CMakeLists.txt
 !requirements.txt
 
-# CMake build artifacts (CMakeCache.txt already covered by *.txt)
+# CMake build artifacts
 CMakeCache.txt
 CMakeFiles/
 _deps/
@@ -52,3 +53,8 @@ cmake-build-*/
 __pycache__/
 *.pyc
 *.pyo
+*.egg-info/
+dist/
+
+# Streamlit
+.streamlit/
